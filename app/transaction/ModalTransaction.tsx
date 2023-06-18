@@ -10,6 +10,7 @@ import useDebounce from "@/utils/useDebounce";
 import MemberService from "@/service/member";
 import TransactionService from "@/service/transaction";
 import toast from "react-hot-toast";
+import { IoMdClose } from "react-icons/io";
 
 interface TransactionProps {
   nameProps: string;
@@ -35,7 +36,7 @@ const ModalTransaction: React.FC<TransactionProps> = ({
     useState<string>("");
   const [dataMemberSelected, setDataMemberSelected] = useState<any>({});
   const [dataMember, setDataMember] = useState<any[]>([]);
-  const debouncedFilterMember = useDebounce(filterMemberKeyword, 500);
+  const debouncedFilterMember = useDebounce(filterMemberKeyword, 400);
 
   const router = useRouter();
 
@@ -93,7 +94,16 @@ const ModalTransaction: React.FC<TransactionProps> = ({
   };
 
   const selectMedicine = (medicine: any): void => {
-    dataMedicineSelected.push(medicine);
+    const filteredMedicine = dataMedicineSelected.filter(
+      (item) => item.id == medicine.id
+    );
+
+    console.log(filteredMedicine);
+
+    if (!filteredMedicine.length) {
+      dataMedicineSelected.push(medicine);
+    }
+
     setMedicineListOpen(false);
     setFilterMedicineKeyword("");
   };
@@ -128,7 +138,7 @@ const ModalTransaction: React.FC<TransactionProps> = ({
       onSubmit={onSubmit}
     >
       {({ values, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-        <Form className="modal-box">
+        <Form className="modal-box w-11/12 max-w-5xl">
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             onClick={() => setModalIsOpen(false)}
@@ -236,17 +246,20 @@ const ModalTransaction: React.FC<TransactionProps> = ({
                     })}
                 </ul>
               )}
-              <div className="flex mt-2 space-x-2">
+              <div className="mt-2 grid gap-2 grid-cols-3">
                 {dataMedicineSelected &&
                   dataMedicineSelected.map((item) => {
                     return (
-                      <div className="px-2 border rounded" key={item.name}>
+                      <div
+                        className="px-2 flex border justify-between rounded-full items-center"
+                        key={item.name}
+                      >
                         {item.name}
                         <span
-                          className="ml-2 cursor-pointer"
+                          className="ml-2 cursor-pointer "
                           onClick={() => deleteMedicineItem(item.id)}
                         >
-                          x
+                          <IoMdClose />
                         </span>
                       </div>
                     );

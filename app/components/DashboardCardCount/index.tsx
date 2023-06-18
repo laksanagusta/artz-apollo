@@ -8,9 +8,9 @@ const DashboardCardCount: React.FC<DashboardCardCountProps> = ({
   count,
 }) => {
   return (
-    <div className="border rounded-lg p-4 w-1/3">
+    <div className="border rounded-lg p-4 w-1/3 font-medium">
       <p className="text-sm">{title}</p>
-      <p className="text-2xl font-medium">{count}</p>
+      <p className="text-2xl">{count}</p>
     </div>
   );
 };
