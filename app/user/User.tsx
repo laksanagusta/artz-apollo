@@ -91,7 +91,7 @@ const User = () => {
         </thead>
         <tbody>
           {usersData?.map((user) => {
-            return <UserList user={user} />;
+            return <UserList key={user.id} user={user} />;
           })}
         </tbody>
       </table>
