@@ -2,42 +2,40 @@
 
 import React, { useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { addCaseSchema } from "../validation/case/addCaseSchema";
-import { CreateCase } from "@/app/service/case";
+import { addSymptomSchema } from "@/app/validation/symptom/addSymptomSchema";
+import { CreateSymptom } from "@/app/service/symptom";
 import { toast } from "react-hot-toast";
 import { useApolloClient } from "@apollo/client";
 
-interface CaseProps {
+interface SymptomProps {
   nameProps: string;
   setModalIsOpen: (open: boolean) => boolean | void;
   edit: boolean;
 }
 
-const ModalCase: React.FC<CaseProps> = ({
+const ModalSymptom: React.FC<SymptomProps> = ({
   nameProps,
   setModalIsOpen,
   edit,
 }) => {
-  const [name, setName] = useState<string>(nameProps);
-
   const initialValues = {
-    name: edit ? name : "",
+    name: edit ? nameProps : "",
   };
 
   async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
     try {
       const client = useApolloClient();
-      await CreateCase(value, client);
+      await CreateSymptom(value, client);
       setModalIsOpen(false);
       setSubmitting(false);
-      toast.success("Success add case");
+      toast.success("Success add symptom");
     } catch (error) {}
   }
 
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={addCaseSchema}
+      validationSchema={addSymptomSchema}
       onSubmit={OnSubmit}
     >
       {({ isSubmitting }) => (
@@ -49,7 +47,7 @@ const ModalCase: React.FC<CaseProps> = ({
             ✕
           </button>
           <h3 className="font-bold text-lg mb-6">
-            {edit ? "Edit" : "Add new"} Case
+            {edit ? "Edit" : "Add new"} Symptom
           </h3>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -77,4 +75,4 @@ const ModalCase: React.FC<CaseProps> = ({
   );
 };
 
-export default ModalCase;
+export default ModalSymptom;

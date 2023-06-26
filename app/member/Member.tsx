@@ -8,10 +8,12 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { LuImport, LuRefreshCw } from "react-icons/lu";
 import Modal from "./Modal";
 import { Field, Form, Formik } from "formik";
-import MemberService from "@/service/member";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
 import { Toaster } from "react-hot-toast";
+import { SearchMember } from "../service/member";
+import { InitialValues } from "../utils/global";
+import { useApolloClient } from "@apollo/client";
 
 const Member = () => {
   const [membersData, setMembersData] = useState<any[]>([]);
@@ -23,26 +25,30 @@ const Member = () => {
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
 
-  const _memberService = new MemberService();
-
+  const client = useApolloClient();
   const initialValues = {
     searchParams: "",
     limit: 10,
   };
 
   useEffect(() => {
+    async function onLoadMember(): Promise<void> {
+      await GetMember("", 10, 0);
+    }
+
     onLoadMember();
   }, []);
 
-  const getMember = async (
+  const GetMember = async (
     searchParams: string,
     limit: number,
     page: number
   ) => {
-    const { data } = await _memberService.searchMember(
+    const { data } = await SearchMember(
       searchParams,
       page,
-      limit
+      limit,
+      useApolloClient()
     );
 
     setMembersData(data.searchMember.members);
@@ -51,16 +57,12 @@ const Member = () => {
     setPageCount(Math.ceil(data.searchMember.count / limit));
   };
 
-  const onLoadMember = async (): Promise<void> => {
-    await getMember(initialValues.searchParams, initialValues.limit, 0);
-  };
-
   const handlePageClick = async ({ selected }: any) => {
-    await getMember(searchParams, limit, selected);
+    await GetMember(searchParams, limit, selected);
   };
 
   async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await getMember(value.searchParams, parseInt(value.limit), 0);
+    await GetMember(value.searchParams, parseInt(value.limit), 0);
     setSearchParams(value.searchParams);
     setLimit(value.limit);
     setSubmitting(false);

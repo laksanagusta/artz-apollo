@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import Modal from "./Modal";
-import { convertDate } from "@/utils/convertDate";
+import { convertDate } from "@/app/utils/convertDate";
 
 interface TransactionListProps {
   transaction: any;

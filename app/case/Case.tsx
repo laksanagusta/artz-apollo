@@ -7,10 +7,11 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { LuImport, LuRefreshCw } from "react-icons/lu";
 import Modal from "./Modal";
 import { Field, Form, Formik } from "formik";
-import CaseService from "@/service/case";
+import { GetCase } from "@/app/service/case";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
 import { Toaster } from "react-hot-toast";
+import { useApolloClient } from "@apollo/client";
 
 const Case = () => {
   const [casesData, setCasesData] = useState<any[]>([]);
@@ -22,19 +23,36 @@ const Case = () => {
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
 
-  const _caseService = new CaseService();
-
   const initialValues = {
     searchParams: "",
     limit: 10,
   };
 
+  const client = useApolloClient();
+
   useEffect(() => {
+    const initialValues = {
+      searchParams: "",
+      limit: 10,
+    };
+
+    async function onLoadCase(): Promise<void> {
+      await GetCase(initialValues.searchParams, initialValues.limit, 0, client);
+    }
     onLoadCase();
   }, []);
 
-  const getCase = async (searchParams: string, limit: number, page: number) => {
-    const { data } = await _caseService.getCase(searchParams, page, limit);
+  const GetCaseData = async (
+    searchParams: string,
+    limit: number,
+    page: number
+  ) => {
+    const { data } = await GetCase(
+      searchParams,
+      page,
+      limit,
+      useApolloClient()
+    );
 
     setCasesData(data.searchCase.cases);
     setTotalResult(data.searchCase.count);
@@ -42,16 +60,12 @@ const Case = () => {
     setPageCount(Math.ceil(data.searchCase.count / limit));
   };
 
-  const onLoadCase = async (): Promise<void> => {
-    await getCase(initialValues.searchParams, initialValues.limit, 0);
-  };
-
   const handlePageClick = async ({ selected }: any) => {
-    await getCase(searchParams, limit, selected);
+    await GetCaseData(searchParams, limit, selected);
   };
 
   async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await getCase(value.searchParams, parseInt(value.limit), 0);
+    await GetCaseData(value.searchParams, parseInt(value.limit), 0);
     setSearchParams(value.searchParams);
     setLimit(value.limit);
     setSubmitting(false);

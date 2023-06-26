@@ -10,13 +10,14 @@ import { LuImport, LuRefreshCw } from "react-icons/lu";
 import DashboardCardCount from "../components/DashboardCardCount";
 import FlatList from "../components/FlatList";
 import { Field, Form, Formik } from "formik";
-import TransactionService from "@/service/transaction";
 import { Toaster } from "react-hot-toast";
+import { SearchTransaction } from "../service/transaction";
+import { InitialValues } from "../utils/global";
+import { useApolloClient } from "@apollo/client";
 
 const Transaction = () => {
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
-  const [currentPage, setCurrentPage] = useState<number>(0);
   const [transactionsData, setTransactionsData] = useState<any[]>([]);
 
   const [pageCount, setPageCount] = useState<number>(0);
@@ -25,27 +26,28 @@ const Transaction = () => {
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
 
-  const _transactionService = new TransactionService();
+  const client = useApolloClient();
+
+  useEffect(() => {
+    const onLoadTransaction = async (): Promise<void> => {
+      await SearchTransactionData("", 10, 0);
+    };
+
+    onLoadTransaction();
+  }, []);
 
   const initialValues = {
     searchParams: "",
     limit: 10,
+    page: 0,
   };
 
-  useEffect(() => {
-    onLoadTransaction();
-  }, [currentPage]);
-
-  const searchTransaction = async (
+  const SearchTransactionData = async (
     searchParams: string,
     limit: number,
     page: number
   ) => {
-    const { data } = await _transactionService.searchTransaction(
-      searchParams,
-      page,
-      limit
-    );
+    const { data } = await SearchTransaction(searchParams, page, limit, client);
 
     setTransactionsData(data.searchTransaction.transactions);
     setTotalResult(data.searchTransaction.count);
@@ -53,19 +55,15 @@ const Transaction = () => {
     setPageCount(Math.ceil(data.searchTransaction.count / limit));
   };
 
-  const onLoadTransaction = async (): Promise<void> => {
-    await searchTransaction(initialValues.searchParams, initialValues.limit, 0);
-  };
-
   async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await searchTransaction(value.searchParams, parseInt(value.limit), 0);
+    await SearchTransactionData(value.searchParams, parseInt(value.limit), 0);
     setSearchParams(value.searchParams);
     setLimit(value.limit);
     setSubmitting(false);
   }
 
   const handlePageClick = async ({ selected }: any) => {
-    await searchTransaction(searchParams, limit, selected);
+    await SearchTransactionData(searchParams, limit, selected);
   };
 
   return (

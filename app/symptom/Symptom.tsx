@@ -1,20 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
-import MedicineList from "./MedicineList";
-import ModalMedicine from "./ModalMedicine";
+import SymptomList from "./SymptomList";
+import ModalSymptom from "./ModalSymptom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { LuImport, LuRefreshCw } from "react-icons/lu";
 import Modal from "./Modal";
 import { Field, Form, Formik } from "formik";
-import { GetMedicine } from "@/app/service/medicine";
+import { GetSymptom } from "@/app/service/symptom";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
-import { InitialValues } from "../utils/global";
+import { Toaster } from "react-hot-toast";
 import { useApolloClient } from "@apollo/client";
 
-const Medicine = () => {
-  const [medicinesData, setMedicinesData] = useState<any[]>([]);
+const Symptom = () => {
+  const [symptomsData, setSymptomsData] = useState<any[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
   const [openModalDelete, setOpenModalDelete] = useState<boolean>(false);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
@@ -23,39 +23,54 @@ const Medicine = () => {
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
 
-  const client = useApolloClient();
   const initialValues = {
     searchParams: "",
     limit: 10,
   };
 
-  useEffect(() => {
-    async function onLoadMedicine(): Promise<void> {
-      await GetMedicineData("", 10, 0);
-    }
+  const client = useApolloClient();
 
-    onLoadMedicine();
+  useEffect(() => {
+    const initialValues = {
+      searchParams: "",
+      limit: 10,
+    };
+
+    async function onLoadSymptom(): Promise<void> {
+      await GetSymptom(
+        initialValues.searchParams,
+        initialValues.limit,
+        0,
+        client
+      );
+    }
+    onLoadSymptom();
   }, []);
 
-  const GetMedicineData = async (
+  const GetSymptomData = async (
     searchParams: string,
     limit: number,
     page: number
   ) => {
-    const { data } = await GetMedicine(searchParams, page, limit, client);
+    const { data } = await GetSymptom(
+      searchParams,
+      page,
+      limit,
+      useApolloClient()
+    );
 
-    setMedicinesData(data.searchMedicine.medicines);
-    setTotalResult(data.searchMedicine.count);
+    setSymptomsData(data.searchSymptom.symptoms);
+    setTotalResult(data.searchSymptom.count);
 
-    setPageCount(Math.ceil(data.searchMedicine.count / limit));
+    setPageCount(Math.ceil(data.searchSymptom.count / limit));
   };
 
   const handlePageClick = async ({ selected }: any) => {
-    await GetMedicineData(searchParams, limit, selected);
+    await GetSymptomData(searchParams, limit, selected);
   };
 
   async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await GetMedicineData(value.searchParams, parseInt(value.limit), 0);
+    await GetSymptomData(value.searchParams, parseInt(value.limit), 0);
     setSearchParams(value.searchParams);
     setLimit(value.limit);
     setSubmitting(false);
@@ -66,11 +81,11 @@ const Medicine = () => {
       <div className="flex items-center justify-between py-7">
         <div>
           <h1 className="text-2xl font-semibold leading-relaxed text-gray-800">
-            Medicines
+            Symptoms
           </h1>
         </div>
         <Modal modalIsOpen={modalIsOpen}>
-          <ModalMedicine
+          <ModalSymptom
             nameProps=""
             setModalIsOpen={setModalIsOpen}
             edit={false}
@@ -89,7 +104,7 @@ const Medicine = () => {
             onClick={() => setModalIsOpen(true)}
           >
             <AiOutlinePlus className="font-semibold" size={20} />
-            Add medicine
+            Add symptom
           </button>
         </div>
       </div>
@@ -100,9 +115,9 @@ const Medicine = () => {
       </ul>
 
       <div className="flex space-x-4 mb-6">
-        <DashboardCardCount title="Total Medicines" count={20000} />
-        <DashboardCardCount title="Total Medicines Found" count={totalResult} />
-        <DashboardCardCount title="Total Medicines Found" count={totalResult} />
+        <DashboardCardCount title="Total Symptoms" count={20000} />
+        <DashboardCardCount title="Total Symptoms Found" count={totalResult} />
+        <DashboardCardCount title="Total Symptoms Found" count={totalResult} />
       </div>
 
       <div className="flex w-full mb-6">
@@ -145,9 +160,22 @@ const Medicine = () => {
             </tr>
           </thead>
           <tbody>
-            {medicinesData?.map((medicine) => {
-              return <MedicineList key={medicine.id} medicine={medicine} />;
-            })}
+            {symptomsData.length > 0 ? (
+              symptomsData.map((symptomItem) => {
+                return (
+                  <SymptomList
+                    key={symptomItem.id}
+                    symptomProps={symptomItem}
+                  />
+                );
+              })
+            ) : (
+              <tr>
+                <td className="text-center py-4" colSpan={4}>
+                  Data not found
+                </td>
+              </tr>
+            )}
             <tr>
               <td colSpan={4} className="border-t">
                 <ReactPaginate
@@ -173,8 +201,9 @@ const Medicine = () => {
           </tbody>
         </table>
       </div>
+      <Toaster />
     </main>
   );
 };
 
-export default Medicine;
+export default Symptom;

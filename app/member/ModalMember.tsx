@@ -1,13 +1,11 @@
 "use client";
 
-import { AiOutlinePlus } from "react-icons/ai";
-import React, { useState } from "react";
-import { gql, useApolloClient } from "@apollo/client";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { addMemberSchema } from "../validation/member/addMemberSchema";
-import MemberService from "@/service/member";
+import { CreateMember } from "@/app/service/member";
 import { toast } from "react-hot-toast";
+import { useApolloClient } from "@apollo/client";
 
 interface MemberProps {
   firstNameProps: string;
@@ -36,11 +34,8 @@ const ModalMember: React.FC<MemberProps> = ({
     phone_number: edit ? phoneNumberProps : "",
   };
 
-  const _memberServie = new MemberService();
-
-  async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    console.log(value);
-    await _memberServie.createMember(value);
+  async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
+    await CreateMember(value, useApolloClient());
     setSubmitting(false);
     toast.success("Success add member");
   }
@@ -49,7 +44,7 @@ const ModalMember: React.FC<MemberProps> = ({
     <Formik
       initialValues={initialValues}
       validationSchema={addMemberSchema}
-      onSubmit={onSubmit}
+      onSubmit={OnSubmit}
     >
       {({ isSubmitting }) => (
         <Form method="dialog" className="modal-box">

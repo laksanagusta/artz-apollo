@@ -5,12 +5,12 @@ import { gql, useApolloClient } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { Field, Formik, Form, ErrorMessage } from "formik";
 import { addTransactionSchema } from "../validation/transaction/addTransactionSchema";
-import MedicineService from "@/service/medicine";
-import useDebounce from "@/utils/useDebounce";
-import MemberService from "@/service/member";
-import TransactionService from "@/service/transaction";
+import { GetMedicine } from "@/app/service/medicine";
+import useDebounce from "@/app/utils/useDebounce";
+import { GetMember } from "@/app/service/member";
 import toast from "react-hot-toast";
 import { IoMdClose } from "react-icons/io";
+import { CreateTransaction } from "../service/transaction";
 
 interface TransactionProps {
   nameProps: string;
@@ -40,34 +40,32 @@ const ModalTransaction: React.FC<TransactionProps> = ({
 
   const router = useRouter();
 
-  const medicineService = new MedicineService();
-  const memberService = new MemberService();
-  const _transactionService = new TransactionService();
-
   useEffect(() => {
-    const setFilterMedicine = async (value: string): Promise<void> => {
+    const SetFilterMedicine = async (value: string): Promise<void> => {
       setFilterMedicineKeyword(debouncedFilterMedicine);
-      const { data } = await medicineService.getMedicine(
+      const { data } = await GetMedicine(
         debouncedFilterMedicine,
         0,
-        50
+        50,
+        useApolloClient()
       );
       setDataMedicine(data.searchMedicine.medicines);
       if (debouncedFilterMedicine) setMedicineListOpen(true);
       if (!debouncedFilterMedicine) setMedicineListOpen(false);
     };
 
-    const setFilterMember = async (value: string): Promise<void> => {
+    const SetFilterMember = async (value: string): Promise<void> => {
+      const client = useApolloClient();
       if (filterMemberKeyword !== filterMemberKeywordValue) {
-        const data = await memberService.getMember(debouncedFilterMember);
+        const data = await GetMember(debouncedFilterMember, client);
         setDataMember(data.members);
         if (debouncedFilterMember) setMemberListOpen(true);
         if (!debouncedFilterMember) setMemberListOpen(false);
       }
     };
 
-    if (debouncedFilterMedicine) setFilterMedicine(debouncedFilterMedicine);
-    if (debouncedFilterMember) setFilterMember(debouncedFilterMember);
+    if (debouncedFilterMedicine) SetFilterMedicine(debouncedFilterMedicine);
+    if (debouncedFilterMember) SetFilterMember(debouncedFilterMember);
   }, [debouncedFilterMedicine, debouncedFilterMember]);
 
   const ADD_MEMBER = gql`
@@ -115,12 +113,12 @@ const ModalTransaction: React.FC<TransactionProps> = ({
     setDataMedicineSelected(filteredMedicine);
   };
 
-  async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
+  async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
     value.medicines = dataMedicineSelected.map((value) => {
       return { id: value.id };
     });
     value.member = dataMemberSelected.id;
-    await _transactionService.createTransaction(value);
+    await CreateTransaction(value, useApolloClient());
     setSubmitting(false);
     setModalIsOpen(false);
     toast.success("Success add transaction");
@@ -135,7 +133,7 @@ const ModalTransaction: React.FC<TransactionProps> = ({
         symptom: "",
       }}
       validationSchema={addTransactionSchema}
-      onSubmit={onSubmit}
+      onSubmit={OnSubmit}
     >
       {({ values, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
         <Form className="modal-box w-11/12 max-w-5xl">

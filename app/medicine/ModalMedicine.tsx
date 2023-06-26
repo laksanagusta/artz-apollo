@@ -1,12 +1,10 @@
 "use client";
 
-import { AiOutlinePlus } from "react-icons/ai";
 import React, { useState } from "react";
-import { gql, useApolloClient } from "@apollo/client";
-import { useRouter } from "next/navigation";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { addMedicineSchema } from "../validation/medicine/addMedicineSchema";
-import MedicineService from "@/service/medicine";
+import { CreateMedicine } from "@/app/service/medicine";
+import { useApolloClient } from "@apollo/client";
 
 interface MedicineProps {
   nameProps: string;
@@ -25,10 +23,8 @@ const ModalMedicine: React.FC<MedicineProps> = ({
     name: edit ? name : "",
   };
 
-  const _medicineServie = new MedicineService();
-
-  async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await _medicineServie.createMedicine(value);
+  async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
+    await CreateMedicine(value, useApolloClient());
     setSubmitting(false);
   }
 
@@ -36,7 +32,7 @@ const ModalMedicine: React.FC<MedicineProps> = ({
     <Formik
       initialValues={initialValues}
       validationSchema={addMedicineSchema}
-      onSubmit={onSubmit}
+      onSubmit={OnSubmit}
     >
       {({ isSubmitting }) => (
         <Form method="dialog" className="modal-box">
