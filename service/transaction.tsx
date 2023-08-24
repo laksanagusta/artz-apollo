@@ -1,5 +1,5 @@
-import { CREATE_TRANSACTION } from "@/app/graphql/mutations/transaction";
-import { SEARCH_TRANSACTION } from "@/app/graphql/query/transaction";
+import { CREATE_TRANSACTION } from "@/graphql/mutations/transaction";
+import { SEARCH_TRANSACTION } from "@/graphql/query/transaction";
 import { useApolloClient, ApolloClient } from "@apollo/client";
 
 interface ITransaction {

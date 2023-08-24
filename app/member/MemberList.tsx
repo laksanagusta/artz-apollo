@@ -5,9 +5,10 @@ import Modal from "./Modal";
 
 interface MemberListProps {
   member: any;
+  setIsRefresh: (open: string) => string | void;
 }
 
-const MemberList: React.FC<MemberListProps> = ({ member }) => {
+const MemberList: React.FC<MemberListProps> = ({ member, setIsRefresh }) => {
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
   return (
@@ -19,13 +20,13 @@ const MemberList: React.FC<MemberListProps> = ({ member }) => {
         <div>{member.firstName}</div>
         <div>{member.lastName}</div>
       </td>
-      <td className="text-sm px-4">{member.age} </td>
-      <td className="text-sm px-4">{member.address} </td>
-      <td className="text-sm px-4">{member.phone_number} </td>
-      <td className="text-sm px-4">{member.createdAt} </td>
-      <td className="text-sm px-4">{member.updatedAt} </td>
-      <td className="gap-2 px-4">
-        <div className="flex gap-2 justify-end pr-6">
+      <td className="text-sm">{member.age}</td>
+      <td className="text-sm">{member.address}</td>
+      <td className="text-sm">{member.phone_number}</td>
+      <td className="text-sm">{member.createdAt}</td>
+      <td className="text-sm">{member.updatedAt}</td>
+      <td className="pr-10">
+        <div className="flex gap-2 justify-end">
           <AiOutlineEdit
             size={18}
             className="text-blue-500"
@@ -38,7 +39,9 @@ const MemberList: React.FC<MemberListProps> = ({ member }) => {
               ageProps={member.age}
               addressProps={member.address}
               phoneNumberProps={member.phone_number}
+              id={member.id}
               setModalIsOpen={setModalIsOpen}
+              setIsRefresh={setIsRefresh}
               edit={true}
             />
           </Modal>

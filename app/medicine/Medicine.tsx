@@ -7,10 +7,9 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { LuImport, LuRefreshCw } from "react-icons/lu";
 import Modal from "./Modal";
 import { Field, Form, Formik } from "formik";
-import { GetMedicine } from "@/app/service/medicine";
+import { GetMedicine } from "../../service/medicine";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
-import { InitialValues } from "../utils/global";
 import { useApolloClient } from "@apollo/client";
 
 const Medicine = () => {
@@ -22,6 +21,7 @@ const Medicine = () => {
 
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
+  const [isRefresh, setIsRefresh] = useState<string>("");
 
   const client = useApolloClient();
   const initialValues = {
@@ -35,7 +35,7 @@ const Medicine = () => {
     }
 
     onLoadMedicine();
-  }, []);
+  }, [isRefresh]);
 
   const GetMedicineData = async (
     searchParams: string,
@@ -71,9 +71,10 @@ const Medicine = () => {
         </div>
         <Modal modalIsOpen={modalIsOpen}>
           <ModalMedicine
-            nameProps=""
+            medicineProps=""
             setModalIsOpen={setModalIsOpen}
             edit={false}
+            setIsRefresh={setIsRefresh}
           />
         </Modal>
         <div className="flex space-x-4">
@@ -146,7 +147,13 @@ const Medicine = () => {
           </thead>
           <tbody>
             {medicinesData?.map((medicine) => {
-              return <MedicineList key={medicine.id} medicine={medicine} />;
+              return (
+                <MedicineList
+                  key={medicine.id}
+                  medicine={medicine}
+                  setIsRefresh={setIsRefresh}
+                />
+              );
             })}
             <tr>
               <td colSpan={4} className="border-t">

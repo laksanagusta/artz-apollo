@@ -1,9 +1,10 @@
-import { CREATE_MEDICINE } from "@/app/graphql/mutations/medicine";
-import { GET_MEDICINE } from "@/app/graphql/query/medicine";
+import { CREATE_MEDICINE, UPDATE_MEDICINE } from "@/graphql/mutations/medicine";
+import { GET_MEDICINE } from "@/graphql/query/medicine";
 import { useApolloClient, ApolloClient } from "@apollo/client";
 
 export default interface IMedicine {
   name: string;
+  description: string;
 }
 
 export const GetMedicine = async (
@@ -30,6 +31,21 @@ export const CreateMedicine = async (
     mutation: CREATE_MEDICINE,
     variables: {
       ...value,
+    },
+  });
+};
+
+export const UpdateMedicine = async (
+  value: IMedicine,
+  client: ApolloClient<Object>,
+  id: number
+): Promise<any> => {
+  return await client.mutate({
+    mutation: UPDATE_MEDICINE,
+    variables: {
+      name: value.name,
+      description: value.description,
+      id: id,
     },
   });
 };

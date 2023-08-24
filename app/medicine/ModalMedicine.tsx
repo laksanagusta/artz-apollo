@@ -2,30 +2,48 @@
 
 import React, { useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { addMedicineSchema } from "../validation/medicine/addMedicineSchema";
-import { CreateMedicine } from "@/app/service/medicine";
+import { addMedicineSchema } from "../../validation/medicine/addMedicineSchema";
+import { CreateMedicine, UpdateMedicine } from "../../service/medicine";
 import { useApolloClient } from "@apollo/client";
+import { toast } from "react-hot-toast";
 
 interface MedicineProps {
-  nameProps: string;
+  medicineProps: any;
   setModalIsOpen: (open: boolean) => boolean | void;
+  setIsRefresh: (open: string) => string | void;
   edit: boolean;
 }
 
 const ModalMedicine: React.FC<MedicineProps> = ({
-  nameProps,
+  medicineProps,
   setModalIsOpen,
+  setIsRefresh,
   edit,
 }) => {
-  const [name, setName] = useState<string>(nameProps);
-
   const initialValues = {
-    name: edit ? name : "",
+    name: edit ? medicineProps.name : "",
+    description: edit ? medicineProps.description : "",
   };
 
+  const client = useApolloClient();
+
   async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await CreateMedicine(value, useApolloClient());
+    if (!edit) {
+      await CreateMedicine(value, client);
+      afterSubmit({ setSubmitting });
+      setIsRefresh(Date.now().toString());
+    } else {
+      await UpdateMedicine(value, client, medicineProps.id);
+      afterSubmit({ setSubmitting });
+      console.log(Date.now().toString());
+      setIsRefresh(Date.now().toString());
+    }
+  }
+
+  function afterSubmit({ setSubmitting }: any) {
+    setModalIsOpen(false);
     setSubmitting(false);
+    toast.success("Success save medicine");
   }
 
   return (
@@ -51,10 +69,19 @@ const ModalMedicine: React.FC<MedicineProps> = ({
                 type="text"
                 name="name"
                 placeholder="Name"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="name" />
+              </div>
+              <Field
+                type="text"
+                name="description"
+                placeholder="description"
+                className="input input-bordered w-full"
+              />
+              <div className="label-text-alt text-red-500">
+                <ErrorMessage name="description" />
               </div>
             </div>
             <button

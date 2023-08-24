@@ -5,9 +5,13 @@ import Modal from "./Modal";
 
 interface SymptomListProps {
   symptomProps: any;
+  setIsRefresh: (open: string) => string | void;
 }
 
-const SymptomList: React.FC<SymptomListProps> = ({ symptomProps }) => {
+const SymptomList: React.FC<SymptomListProps> = ({
+  symptomProps,
+  setIsRefresh,
+}) => {
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
   return (
@@ -17,7 +21,7 @@ const SymptomList: React.FC<SymptomListProps> = ({ symptomProps }) => {
     >
       <td className="py-2 pl-10">
         <div>{symptomProps.name}</div>
-        <div className="text-xs">Obat sakit kepala</div>
+        <div className="text-xs">{symptomProps.description}</div>
       </td>
       <td className="text-sm px-4">{symptomProps.createdAt} </td>
       <td className="text-sm px-4">{symptomProps.updatedAt} </td>
@@ -30,8 +34,9 @@ const SymptomList: React.FC<SymptomListProps> = ({ symptomProps }) => {
           />
           <Modal modalIsOpen={modalIsOpen}>
             <ModalSymptom
-              nameProps={symptomProps.name}
+              symptomProps={symptomProps}
               setModalIsOpen={setModalIsOpen}
+              setIsRefresh={setIsRefresh}
               edit={true}
             />
           </Modal>

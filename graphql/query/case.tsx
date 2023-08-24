@@ -7,6 +7,7 @@ export const GET_CASE = gql`
       cases {
         id
         name
+        description
         createdAt
         updatedAt
       }

@@ -13,7 +13,7 @@ import { GiMedicines } from "react-icons/gi";
 const Sidebar: React.FC<any> = () => {
   return (
     <aside className="py-8 px-8 w-64 border-r border-gray-200">
-      <p className="font-semibold text-2xl">ORION @.@</p>
+      <p className="font-semibold text-2xl">ORION</p>
       <ul className="flex flex-col pt-7 mb-auto">
         <div className="border-b mt-4 py-[6px] font-medium text-gray-400 mb-2 text-xs">
           MASTER
@@ -50,7 +50,7 @@ const Sidebar: React.FC<any> = () => {
           <div className="flex gap-x-4 font-medium items-center py-2 text-gray-600 hover:text-indigo-600 group">
             <span className="absolute w-1.5 h-8 bg-indigo-600 rounded-r-full left-0 scale-y-0 -translate-x-full group-hover:scale-y-100 group-hover:translate-x-0 transition-transform ease-in-out" />
             <GiMedicines />
-            <Link href="/medicine">Symptom</Link>
+            <Link href="/symptom">Symptom</Link>
           </div>
         </li>
         <div className="border-b mt-6 py-[6px] font-medium text-gray-400 mb-2 text-xs">

@@ -2,34 +2,49 @@
 
 import React, { useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { addSymptomSchema } from "@/app/validation/symptom/addSymptomSchema";
-import { CreateSymptom } from "@/app/service/symptom";
 import { toast } from "react-hot-toast";
 import { useApolloClient } from "@apollo/client";
+import { addSymptomSchema } from "@/validation/symptom/addSymptomSchema";
+import { CreateSymptom, UpdateSymptom } from "@/service/symptom";
 
 interface SymptomProps {
-  nameProps: string;
+  symptomProps: any;
   setModalIsOpen: (open: boolean) => boolean | void;
+  setIsRefresh: (open: string) => string | void;
   edit: boolean;
 }
 
 const ModalSymptom: React.FC<SymptomProps> = ({
-  nameProps,
+  symptomProps,
   setModalIsOpen,
+  setIsRefresh,
   edit,
 }) => {
   const initialValues = {
-    name: edit ? nameProps : "",
+    name: edit ? symptomProps.name : "",
+    description: edit ? symptomProps.description : "",
   };
 
+  const client = useApolloClient();
+
   async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    try {
-      const client = useApolloClient();
+    if (!edit) {
       await CreateSymptom(value, client);
-      setModalIsOpen(false);
-      setSubmitting(false);
-      toast.success("Success add symptom");
-    } catch (error) {}
+      afterSubmit({ setSubmitting });
+      setIsRefresh(Date.now().toString());
+    } else {
+      await UpdateSymptom(value, client, symptomProps.id);
+
+      afterSubmit({ setSubmitting });
+
+      setIsRefresh(Date.now().toString());
+    }
+  }
+
+  function afterSubmit({ setSubmitting }: any) {
+    setModalIsOpen(false);
+    setSubmitting(false);
+    toast.success("Success save medicine");
   }
 
   return (
@@ -55,10 +70,21 @@ const ModalSymptom: React.FC<SymptomProps> = ({
                 type="text"
                 name="name"
                 placeholder="Name"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="name" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Field
+                type="text"
+                name="description"
+                placeholder="Description"
+                className="input input-bordered w-full"
+              />
+              <div className="label-text-alt text-red-500">
+                <ErrorMessage name="description" />
               </div>
             </div>
             <button

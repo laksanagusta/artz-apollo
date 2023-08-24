@@ -1,4 +1,4 @@
-import { Sidebar } from "../components/__index";
+import { Sidebar } from "../components";
 import Member from "./Member";
 
 export default async function Home() {

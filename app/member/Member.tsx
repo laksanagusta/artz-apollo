@@ -11,8 +11,7 @@ import { Field, Form, Formik } from "formik";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
 import { Toaster } from "react-hot-toast";
-import { SearchMember } from "../service/member";
-import { InitialValues } from "../utils/global";
+import { SearchMember } from "../../service/member";
 import { useApolloClient } from "@apollo/client";
 
 const Member = () => {
@@ -24,8 +23,8 @@ const Member = () => {
 
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
+  const [isRefresh, setIsRefresh] = useState<string>("");
 
-  const client = useApolloClient();
   const initialValues = {
     searchParams: "",
     limit: 10,
@@ -37,24 +36,23 @@ const Member = () => {
     }
 
     onLoadMember();
-  }, []);
+  }, [isRefresh]);
+
+  const client = useApolloClient();
 
   const GetMember = async (
     searchParams: string,
     limit: number,
     page: number
   ) => {
-    const { data } = await SearchMember(
-      searchParams,
-      page,
-      limit,
-      useApolloClient()
-    );
+    const { data } = await SearchMember(searchParams, page, limit, client);
 
-    setMembersData(data.searchMember.members);
-    setTotalResult(data.searchMember.count);
+    if (data.searchMember) {
+      setMembersData(data.searchMember.members);
+      setTotalResult(data.searchMember.count);
 
-    setPageCount(Math.ceil(data.searchMember.count / limit));
+      setPageCount(Math.ceil(data.searchMember.count / limit));
+    }
   };
 
   const handlePageClick = async ({ selected }: any) => {
@@ -83,6 +81,8 @@ const Member = () => {
             ageProps={0}
             addressProps=""
             phoneNumberProps=""
+            id={0}
+            setIsRefresh={setIsRefresh}
             setModalIsOpen={setModalIsOpen}
             edit={false}
           />
@@ -150,20 +150,26 @@ const Member = () => {
           <thead className="text-xs text-gray-700 bg-gray-100">
             <tr className="text-sm font-medium text-gray-700 border-gray-200">
               <td className="py-2 pl-10 text-sm">Name</td>
-              <td className="py-2 pl-10 text-sm">Age</td>
-              <td className="py-2 pl-10 text-sm">Address</td>
-              <td className="py-2 pl-10 text-sm">Phone Number</td>
+              <td className="py-2 text-sm">Age</td>
+              <td className="py-2 text-sm">Address</td>
+              <td className="py-2 text-sm">Phone Number</td>
               <td className="text-sm px-4 text-left">Created at</td>
               <td className="text-sm px-4 text-left">Updated at</td>
-              <td className="px-4 text-left pr-10"></td>
+              <td className="pr-10 text-right">Action</td>
             </tr>
           </thead>
           <tbody>
             {membersData?.map((member) => {
-              return <MemberList key={member.id} member={member} />;
+              return (
+                <MemberList
+                  key={member.id}
+                  member={member}
+                  setIsRefresh={setIsRefresh}
+                />
+              );
             })}
             <tr>
-              <td colSpan={6} className="border-t">
+              <td colSpan={7} className="border-t">
                 <ReactPaginate
                   breakLabel={<span className="mr-4">...</span>}
                   previousLabel={"Previous"}

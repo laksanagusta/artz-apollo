@@ -7,7 +7,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { LuImport, LuRefreshCw } from "react-icons/lu";
 import Modal from "./Modal";
 import { Field, Form, Formik } from "formik";
-import { GetCase } from "@/app/service/case";
+import { GetCase } from "../../service/case";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
 import { Toaster } from "react-hot-toast";
@@ -22,37 +22,28 @@ const Case = () => {
 
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
+  const [isRefresh, setIsRefresh] = useState<string>("");
+
+  const client = useApolloClient();
 
   const initialValues = {
     searchParams: "",
     limit: 10,
   };
 
-  const client = useApolloClient();
-
   useEffect(() => {
-    const initialValues = {
-      searchParams: "",
-      limit: 10,
-    };
-
     async function onLoadCase(): Promise<void> {
-      await GetCase(initialValues.searchParams, initialValues.limit, 0, client);
+      await GetCaseData("", 10, 0);
     }
     onLoadCase();
-  }, []);
+  }, [isRefresh]);
 
   const GetCaseData = async (
     searchParams: string,
     limit: number,
     page: number
   ) => {
-    const { data } = await GetCase(
-      searchParams,
-      page,
-      limit,
-      useApolloClient()
-    );
+    const { data } = await GetCase(searchParams, page, limit, client);
 
     setCasesData(data.searchCase.cases);
     setTotalResult(data.searchCase.count);
@@ -81,9 +72,10 @@ const Case = () => {
         </div>
         <Modal modalIsOpen={modalIsOpen}>
           <ModalCase
-            nameProps=""
+            caseProps={null}
             setModalIsOpen={setModalIsOpen}
             edit={false}
+            setIsRefresh={setIsRefresh}
           />
         </Modal>
         <div className="flex space-x-4">
@@ -157,7 +149,13 @@ const Case = () => {
           <tbody>
             {casesData.length > 0 ? (
               casesData.map((caseItem) => {
-                return <CaseList key={caseItem.id} caseProps={caseItem} />;
+                return (
+                  <CaseList
+                    key={caseItem.id}
+                    caseProps={caseItem}
+                    setIsRefresh={setIsRefresh}
+                  />
+                );
               })
             ) : (
               <tr>

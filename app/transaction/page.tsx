@@ -1,6 +1,6 @@
 import React from "react";
 import Transaction from "./Transaction";
-import { Sidebar } from "../components/__index";
+import { Sidebar } from "../components";
 
 const page = () => {
   return (

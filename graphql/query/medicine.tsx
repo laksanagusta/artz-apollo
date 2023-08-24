@@ -7,6 +7,7 @@ export const GET_MEDICINE = gql`
       medicines {
         id
         name
+        description
         createdAt
         updatedAt
       }

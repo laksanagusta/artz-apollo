@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { AiFillAccountBook, AiFillAlert, AiFillFilter } from "react-icons/ai";
 import UserList from "./UserList";
 import { BsArrowLeftCircle, BsArrowRightCircle } from "react-icons/bs";
-import { SEARCH_USER } from "../graphql/query/user";
 import { useApolloClient } from "@apollo/client";
 import AddUser from "./AddUser";
 import ReactPaginate from "react-paginate";
+import { SEARCH_USER } from "@/graphql/query/user";
 
 const User = () => {
   const PER_PAGE = 10;

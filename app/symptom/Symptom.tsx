@@ -7,11 +7,11 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { LuImport, LuRefreshCw } from "react-icons/lu";
 import Modal from "./Modal";
 import { Field, Form, Formik } from "formik";
-import { GetSymptom } from "@/app/service/symptom";
 import FlatList from "../components/FlatList";
 import DashboardCardCount from "../components/DashboardCardCount";
 import { Toaster } from "react-hot-toast";
 import { useApolloClient } from "@apollo/client";
+import { GetSymptom } from "@/service/symptom";
 
 const Symptom = () => {
   const [symptomsData, setSymptomsData] = useState<any[]>([]);
@@ -22,6 +22,7 @@ const Symptom = () => {
 
   const [searchParams, setSearchParams] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
+  const [isRefresh, setIsRefresh] = useState<string>("");
 
   const initialValues = {
     searchParams: "",
@@ -31,33 +32,19 @@ const Symptom = () => {
   const client = useApolloClient();
 
   useEffect(() => {
-    const initialValues = {
-      searchParams: "",
-      limit: 10,
-    };
-
     async function onLoadSymptom(): Promise<void> {
-      await GetSymptom(
-        initialValues.searchParams,
-        initialValues.limit,
-        0,
-        client
-      );
+      await GetSymptomData("", 10, 0);
     }
+
     onLoadSymptom();
-  }, []);
+  }, [isRefresh]);
 
   const GetSymptomData = async (
     searchParams: string,
     limit: number,
     page: number
   ) => {
-    const { data } = await GetSymptom(
-      searchParams,
-      page,
-      limit,
-      useApolloClient()
-    );
+    const { data } = await GetSymptom(searchParams, page, limit, client);
 
     setSymptomsData(data.searchSymptom.symptoms);
     setTotalResult(data.searchSymptom.count);
@@ -86,8 +73,9 @@ const Symptom = () => {
         </div>
         <Modal modalIsOpen={modalIsOpen}>
           <ModalSymptom
-            nameProps=""
+            symptomProps=""
             setModalIsOpen={setModalIsOpen}
+            setIsRefresh={setIsRefresh}
             edit={false}
           />
         </Modal>
@@ -166,6 +154,7 @@ const Symptom = () => {
                   <SymptomList
                     key={symptomItem.id}
                     symptomProps={symptomItem}
+                    setIsRefresh={setIsRefresh}
                   />
                 );
               })

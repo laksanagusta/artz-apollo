@@ -5,9 +5,10 @@ import Modal from "./Modal";
 
 interface CaseListProps {
   caseProps: any;
+  setIsRefresh: (open: string) => string | void;
 }
 
-const CaseList: React.FC<CaseListProps> = ({ caseProps }) => {
+const CaseList: React.FC<CaseListProps> = ({ caseProps, setIsRefresh }) => {
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
   return (
@@ -17,7 +18,7 @@ const CaseList: React.FC<CaseListProps> = ({ caseProps }) => {
     >
       <td className="py-2 pl-10">
         <div>{caseProps.name}</div>
-        <div className="text-xs">Obat sakit kepala</div>
+        <div className="text-xs">{caseProps.description}</div>
       </td>
       <td className="text-sm px-4">{caseProps.createdAt} </td>
       <td className="text-sm px-4">{caseProps.updatedAt} </td>
@@ -30,9 +31,10 @@ const CaseList: React.FC<CaseListProps> = ({ caseProps }) => {
           />
           <Modal modalIsOpen={modalIsOpen}>
             <ModalCase
-              nameProps={caseProps.name}
+              caseProps={caseProps}
               setModalIsOpen={setModalIsOpen}
               edit={true}
+              setIsRefresh={setIsRefresh}
             />
           </Modal>
           <AiOutlineDelete size={18} className="text-red-500" />

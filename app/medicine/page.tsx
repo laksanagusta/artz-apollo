@@ -1,4 +1,4 @@
-import { Sidebar } from "../components/__index";
+import { Sidebar } from "../components";
 import Medicine from "./Medicine";
 
 export default async function Home() {

@@ -2,8 +2,8 @@
 
 import React from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { addMemberSchema } from "../validation/member/addMemberSchema";
-import { CreateMember } from "@/app/service/member";
+import { addMemberSchema } from "../../validation/member/addMemberSchema";
+import { CreateMember, UpdateMember } from "@/service/member";
 import { toast } from "react-hot-toast";
 import { useApolloClient } from "@apollo/client";
 
@@ -13,7 +13,9 @@ interface MemberProps {
   ageProps: number;
   addressProps: string;
   phoneNumberProps: string;
+  id: number;
   setModalIsOpen: (open: boolean) => boolean | void;
+  setIsRefresh: (open: string) => string | void;
   edit: boolean;
 }
 
@@ -23,37 +25,49 @@ const ModalMember: React.FC<MemberProps> = ({
   ageProps,
   addressProps,
   phoneNumberProps,
+  id,
   setModalIsOpen,
+  setIsRefresh,
   edit,
 }) => {
-  const initialValues = {
-    firstName: edit ? firstNameProps : "",
-    lastName: edit ? lastNameProps : "",
-    age: edit ? ageProps : "",
-    address: edit ? addressProps : "",
-    phone_number: edit ? phoneNumberProps : "",
-  };
+  const client = useApolloClient();
 
-  async function OnSubmit(value: any, { setSubmitting }: any): Promise<void> {
-    await CreateMember(value, useApolloClient());
+  function afterSubmit({ setSubmitting }: any) {
+    setModalIsOpen(false);
     setSubmitting(false);
-    toast.success("Success add member");
+    toast.success("Success save medicine");
   }
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{
+        firstName: edit ? firstNameProps : "",
+        lastName: edit ? lastNameProps : "",
+        age: edit ? ageProps : "",
+        address: edit ? addressProps : "",
+        phone_number: edit ? phoneNumberProps : "",
+      }}
       validationSchema={addMemberSchema}
-      onSubmit={OnSubmit}
+      onSubmit={async (values: any, { setSubmitting }) => {
+        if (!edit) {
+          await CreateMember(values, client);
+          afterSubmit({ setSubmitting });
+          setIsRefresh(Date.now().toString());
+        } else {
+          await UpdateMember(values, client, id);
+          afterSubmit({ setSubmitting });
+          setIsRefresh(Date.now().toString());
+        }
+      }}
     >
       {({ isSubmitting }) => (
         <Form method="dialog" className="modal-box">
-          <button
+          <a
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             onClick={() => setModalIsOpen(false)}
           >
             ✕
-          </button>
+          </a>
           <h3 className="font-bold text-lg mb-6">
             {edit ? "Edit" : "Add new"} Member
           </h3>
@@ -63,7 +77,7 @@ const ModalMember: React.FC<MemberProps> = ({
                 type="text"
                 name="firstName"
                 placeholder="First Name"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="firstName" />
@@ -74,7 +88,7 @@ const ModalMember: React.FC<MemberProps> = ({
                 type="text"
                 name="lastName"
                 placeholder="Last Name"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="lastName" />
@@ -85,7 +99,7 @@ const ModalMember: React.FC<MemberProps> = ({
                 type="number"
                 name="age"
                 placeholder="age"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="age" />
@@ -96,7 +110,7 @@ const ModalMember: React.FC<MemberProps> = ({
                 type="text"
                 name="address"
                 placeholder="Address"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="address" />
@@ -107,7 +121,7 @@ const ModalMember: React.FC<MemberProps> = ({
                 type="text"
                 name="phone_number"
                 placeholder="Phone Number"
-                className="input input-bordered w-full w-full"
+                className="input input-bordered w-full"
               />
               <div className="label-text-alt text-red-500">
                 <ErrorMessage name="phone_number" />

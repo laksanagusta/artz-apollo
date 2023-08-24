@@ -11,8 +11,7 @@ import DashboardCardCount from "../components/DashboardCardCount";
 import FlatList from "../components/FlatList";
 import { Field, Form, Formik } from "formik";
 import { Toaster } from "react-hot-toast";
-import { SearchTransaction } from "../service/transaction";
-import { InitialValues } from "../utils/global";
+import { SearchTransaction } from "../../service/transaction";
 import { useApolloClient } from "@apollo/client";
 
 const Transaction = () => {
@@ -49,10 +48,12 @@ const Transaction = () => {
   ) => {
     const { data } = await SearchTransaction(searchParams, page, limit, client);
 
-    setTransactionsData(data.searchTransaction.transactions);
-    setTotalResult(data.searchTransaction.count);
+    if (data.SearchTransaction) {
+      setTransactionsData(data.searchTransaction.transaction);
+      setTotalResult(data.searchTransaction.count);
 
-    setPageCount(Math.ceil(data.searchTransaction.count / limit));
+      setPageCount(Math.ceil(data.searchTransaction.count / limit));
+    }
   };
 
   async function onSubmit(value: any, { setSubmitting }: any): Promise<void> {
@@ -75,11 +76,7 @@ const Transaction = () => {
           </h1>
         </div>
         <Modal modalIsOpen={modalIsOpen}>
-          <ModalTransaction
-            nameProps=""
-            setModalIsOpen={setModalIsOpen}
-            edit={false}
-          />
+          <ModalTransaction setModalIsOpen={setModalIsOpen} edit={false} />
         </Modal>
         <div className="flex space-x-4">
           <button

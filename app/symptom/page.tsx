@@ -1,6 +1,5 @@
-import { Sidebar } from "../components/__index";
+import { Sidebar } from "../components";
 import Symptom from "./Symptom";
-import Case from "./Symptom";
 
 export default async function Home() {
   return (

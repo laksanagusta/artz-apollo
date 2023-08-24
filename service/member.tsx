@@ -1,11 +1,13 @@
-import { CREATE_MEMBER } from "@/app/graphql/mutations/member";
-import { GET_MEMBER } from "@/app/graphql/query/member";
+import { CREATE_MEMBER, UPDATE_MEMBER } from "@/graphql/mutations/member";
+import { GET_MEMBER } from "@/graphql/query/member";
 import { ApolloClient, gql, useApolloClient } from "@apollo/client";
 
 export default interface IMember {
-  name: string;
+  firstName: string;
+  lastName: string;
   age: number;
   adress: string;
+  id: number;
 }
 
 export const GetMember = async (name: string, client: ApolloClient<Object>) => {
@@ -55,6 +57,20 @@ export const CreateMember = async (
 ): Promise<any> => {
   return await client.mutate({
     mutation: CREATE_MEMBER,
+    variables: {
+      ...value,
+    },
+  });
+};
+
+export const UpdateMember = async (
+  value: IMember,
+  client: ApolloClient<Object>,
+  id: number
+): Promise<any> => {
+  value.id = id;
+  return await client.mutate({
+    mutation: UPDATE_MEMBER,
     variables: {
       ...value,
     },
